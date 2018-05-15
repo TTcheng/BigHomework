@@ -2,6 +2,10 @@ package com.wangchuncheng.config;
 
 import java.io.Serializable;
 
+/**
+ * Mqtt configuration properties.
+ * Design pattern:Single instance.
+ */
 public class MqttProperties implements Serializable {
     static MqttProperties mqttProperties = new MqttProperties();
     private String userName;

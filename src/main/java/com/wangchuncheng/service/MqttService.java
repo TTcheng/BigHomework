@@ -1,6 +1,7 @@
 package com.wangchuncheng.service;
 
 import com.wangchuncheng.config.MqttProperties;
+import com.wangchuncheng.controller.DataSender;
 import com.wangchuncheng.controller.TaskExecutePool;
 import com.wangchuncheng.entity.HomeData;
 import org.eclipse.paho.client.mqttv3.*;
@@ -9,6 +10,11 @@ import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.Executor;
 
+/**
+ * Mqtt Service.
+ * This class offers MQTT publish homedata service.
+ * Design pattern:Single instance.
+ */
 public class MqttService {
     public static MqttService mqttService = new MqttService();
 
@@ -25,6 +31,9 @@ public class MqttService {
     private MqttConnectOptions connOpts;
     private Executor executor;
 
+    /**
+     * constructor
+     */
     private MqttService() {
         executor = TaskExecutePool.getTaskExecutePool().getExecutor();
         connOpts = new MqttConnectOptions();
@@ -41,6 +50,9 @@ public class MqttService {
 //        executor.execute(() -> connect());
     }
 
+    /**
+     * connect
+     */
     public void connect() {
         try {
             mqttClient.connect(connOpts);
@@ -53,6 +65,12 @@ public class MqttService {
         }
     }
 
+    /**
+     * pub msg:String using given topic
+     *
+     * @param msg
+     * @param topic
+     */
     private void pub(String msg, String topic) {
         MqttMessage message = new MqttMessage(msg.getBytes());
         message.setQos(qos);
@@ -65,6 +83,12 @@ public class MqttService {
         }
     }
 
+    /**
+     * publish home data list
+     *
+     * @param homeDataList
+     * @return status code:int
+     */
     public int publishHomeData(List<HomeData> homeDataList) {
         if (mqttClient != null) {
 
@@ -83,28 +107,42 @@ public class MqttService {
     }
 }
 
-
+/**
+ * MqttCallBack
+ */
 class MyMqttCallback implements MqttCallback {
 
+    @Override
     public void connectionLost(Throwable throwable) {
         System.out.println("Connection lost!!!!!!!!!");
     }
 
+    /**
+     * Override method. when message arrived.
+     * do request
+     *
+     * @param s
+     * @param mqttMessage
+     * @throws Exception
+     */
+    @Override
     public void messageArrived(String s, MqttMessage mqttMessage) throws Exception {
+        DataSender dataSender = new DataSender();
+        Executor executor = TaskExecutePool.getTaskExecutePool().getExecutor();
+
         String msg = new String(mqttMessage.getPayload());
         System.out.println("MQTT message received: " + msg);
 
-        Executor executor = TaskExecutePool.getTaskExecutePool().getExecutor();
-        executor.execute(()->{
-            InfluxdbService influxdbService = InfluxdbService.getInfluxdbService();
-            influxdbService.connect();
-
-            String[] queries = msg.split("%");  //homeId & limit num
-            List<HomeData> gasEvents = influxdbService.query("homedata",queries[0], Long.parseLong(queries[1]));
-            MqttService.getMqttService().publishHomeData(gasEvents);
-        });
+        String[] queries = msg.split("_");  //request_homeid_limit
+        if (queries[0].equals("request")) { //do request
+            dataSender.setHomeID(queries[1]);
+            dataSender.setLimit(Long.parseLong(queries[2]));
+            executor.execute(dataSender);
+        }
+        //else {}//Other request
     }
 
+    @Override
     public void deliveryComplete(IMqttDeliveryToken iMqttDeliveryToken) {
 
     }

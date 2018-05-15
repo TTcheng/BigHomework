@@ -15,10 +15,14 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 /**
- * this class storage home data to influxdb and query from influxdb
+ * Influxdb Service.
+ * this class storage home data to influxdb and query from influxdb.
+ * Design pattern:Single instance
  */
 public class InfluxdbService {// Serializable {
-    static InfluxdbService influxdbService = new InfluxdbService();
+    public static InfluxdbService influxdbService = new InfluxdbService();
+    public static final String MEASUREMENTS = "homedatas";
+
     private DataProperties dataProperties = DataProperties.getDataProperties();
 
     private String url = dataProperties.getUrl();
@@ -27,6 +31,8 @@ public class InfluxdbService {// Serializable {
     private String password = dataProperties.getPassword();
     private String retention = dataProperties.getRetention();
     private int batchNum = dataProperties.getBatchNum();
+
+    private boolean connected = false;
 
     InfluxDB influxDB;//InfluxDBFactory.connect(url, user, password);
     BatchPoints batchPoints;
@@ -39,7 +45,7 @@ public class InfluxdbService {// Serializable {
      *
      * @param data
      * @param measurement
-     * @return
+     * @return status code:int
      */
     synchronized public int writeToInfluxdb(HomeData data, String measurement) {
 
@@ -52,9 +58,6 @@ public class InfluxdbService {// Serializable {
                 .addField("homeId", data.getHomeId())
                 .addField("temperature", data.getTemperature())
                 .addField("humidity", data.getHumidity())
-                .addField("brightness", data.getBrightness())
-                .addField("hasHuman", data.isHasHuman())
-                .addField("smoke", data.isSmoke())
                 .build();
         batchPoints = BatchPoints
                 .database(dbName)
@@ -103,7 +106,7 @@ public class InfluxdbService {// Serializable {
     /**
      * 处理query函数的查询结果
      * @param queryResult
-     * @return
+     * @return home data list.
      */
     public List<HomeData> processQueryResults(QueryResult queryResult) {
         List<HomeData> homeDataList = new LinkedList<>();
@@ -126,19 +129,13 @@ public class InfluxdbService {// Serializable {
                 System.out.println("Time timeStr is :" + timeStr);
                 Timestamp timestamp = Timestamp.valueOf(timeStr);
                 data.setPointtime(timestamp.getTime());
-                double brightness = (double) fieldList.get(1);
-                boolean hasHuman = (boolean) fieldList.get(2);
                 String homeId = (String) fieldList.get(3);
                 double humidity = (double) fieldList.get(4);
-                boolean smoke = (boolean) fieldList.get(5);
                 double temperature = (double) fieldList.get(6);
                 data.setPointtime(timestamp.getTime());
                 data.setHomeId(homeId);
                 data.setTemperature(temperature);
                 data.setHumidity(humidity);
-                data.setBrightness(brightness);
-                data.setHasHuman(hasHuman);
-                data.setSmoke(smoke);
                 System.out.println(data);
                 homeDataList.add(data);
             }

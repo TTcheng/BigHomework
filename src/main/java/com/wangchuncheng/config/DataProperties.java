@@ -3,7 +3,8 @@ package com.wangchuncheng.config;
 import java.io.Serializable;
 
 /**
- * Single instance
+ * Data source properties.
+ * Design pattern:Single instance
  */
 public class DataProperties implements Serializable {
     private static DataProperties dataProperties = new DataProperties();

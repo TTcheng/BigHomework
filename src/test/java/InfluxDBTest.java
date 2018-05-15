@@ -46,9 +46,6 @@ public class InfluxDBTest {
             data.setHomeId(homeId);
             data.setTemperature(temperature);
             data.setHumidity(humidity);
-            data.setBrightness(brightness);
-            data.setHasHuman(hasHuman);
-            data.setSmoke(smoke);
 
             System.out.println(data);
         }

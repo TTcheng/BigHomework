@@ -7,6 +7,9 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Properties;
 
+/**
+ * Init configuration properties.
+ */
 public class Initializer {
     private DataProperties dataProperties = DataProperties.getDataProperties();
     private MqttProperties mqttProperties = MqttProperties.getMqttProperties();
@@ -24,11 +27,17 @@ public class Initializer {
         }
     }
 
+    /**
+     * init.
+     */
     public void init() {
         initDataProperties();
         initMqttProperties();
     }
 
+    /**
+     * init data source properties from configuration file.
+     */
     private void initDataProperties() {
         dataProperties.setUrl(properties.getProperty(datastore + "url"));
         dataProperties.setDbName(properties.getProperty(datastore + "dbName"));
@@ -39,6 +48,9 @@ public class Initializer {
         dataProperties.setTopicName(properties.getProperty(datastore + "topicName"));
     }
 
+    /**
+     * init mqtt configuration properties from configuration file.
+     */
     private void initMqttProperties() {
         mqttProperties.setBrokerURL(properties.getProperty(mqtt + "brokerURL"));
         mqttProperties.setUserName(properties.getProperty(mqtt + "userName"));
