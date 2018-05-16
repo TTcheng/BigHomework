@@ -129,9 +129,9 @@ public class InfluxdbService {// Serializable {
                 System.out.println("Time timeStr is :" + timeStr);
                 Timestamp timestamp = Timestamp.valueOf(timeStr);
                 data.setPointtime(timestamp.getTime());
-                String homeId = (String) fieldList.get(3);
-                double humidity = (double) fieldList.get(4);
-                double temperature = (double) fieldList.get(6);
+                String homeId = (String) fieldList.get(1);
+                double humidity = (double) fieldList.get(2);
+                double temperature = (double) fieldList.get(3);
                 data.setPointtime(timestamp.getTime());
                 data.setHomeId(homeId);
                 data.setTemperature(temperature);
@@ -143,10 +143,9 @@ public class InfluxdbService {// Serializable {
         return homeDataList;
     }
 
-    //    init
     public void connect() {
         influxDB = InfluxDBFactory.connect(url, user, password);
-    }//end of initPara
+    }
 
     public static InfluxdbService getInfluxdbService() {
         return influxdbService;

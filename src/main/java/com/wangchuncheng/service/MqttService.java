@@ -16,7 +16,7 @@ import java.util.concurrent.Executor;
  * Design pattern:Single instance.
  */
 public class MqttService {
-    public static MqttService mqttService = new MqttService();
+    public static MqttService mqttService;// = new MqttService();
 
     MqttProperties mqttProperties = MqttProperties.getMqttProperties();
     private int qos = mqttProperties.getQos();
@@ -103,6 +103,9 @@ public class MqttService {
     }
 
     public static MqttService getMqttService() {
+        if (mqttService==null){
+            mqttService = new MqttService();
+        }
         return mqttService;
     }
 }
@@ -110,7 +113,7 @@ public class MqttService {
 /**
  * MqttCallBack
  */
-class MyMqttCallback implements MqttCallback {
+class MyMqttCallback implements MqttCallbackExtended {
 
     @Override
     public void connectionLost(Throwable throwable) {
@@ -145,5 +148,10 @@ class MyMqttCallback implements MqttCallback {
     @Override
     public void deliveryComplete(IMqttDeliveryToken iMqttDeliveryToken) {
 
+    }
+
+    @Override
+    public void connectComplete(boolean b, String s) {
+        System.out.println("connect　Complete");
     }
 }

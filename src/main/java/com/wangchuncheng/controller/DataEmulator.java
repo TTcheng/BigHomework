@@ -22,11 +22,12 @@ public class DataEmulator implements Runnable {
     public void run() {
         int maxtime = 10000000;
         while (maxtime > 0) {
-            for (int i = 0; i < preHomeIds.length; i++) {
-                for (int j = 0; j < sufHomeIds.length; j++) {
-                    emulateHomedata(preHomeIds[i] + sufHomeIds[j]);
-                }
-            }
+
+            emulateHomedata(preHomeIds[(int) (Math.random()*10)] + sufHomeIds[(int) (Math.random()*12)]);
+//            for (int i = 0; i < preHomeIds.length; i++) {
+//                for (int j = 0; j < sufHomeIds.length; j++) {
+//                }
+//            }
             try {
                 Thread.sleep(1000);
             } catch (InterruptedException e) {
@@ -61,9 +62,9 @@ public class DataEmulator implements Runnable {
     }
 
     public final String[] preHomeIds = new String[]{      //10 floors
-            "1", "2", "3", "4", "5", "6", "7", "8", "9", "10"
+            "1", "2", "3", "4", "5", "6", "7", "8", "9","10"
     };
-    public final String[] sufHomeIds = new String[]{      //9 rooms
-            "01", "02", "03", "04", "05", "06", "07", "08", "09"
+    public final String[] sufHomeIds = new String[]{      //12 rooms
+            "01", "02", "03", "04", "05", "06", "07", "08", "09","10","11","12"
     };
 }
